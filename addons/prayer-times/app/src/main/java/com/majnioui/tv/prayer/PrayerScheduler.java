@@ -227,35 +227,67 @@ public class PrayerScheduler {
             try {
                 Context appContext = ctx.getApplicationContext();
                 String day = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(new Date());
-                String dayParam = new SimpleDateFormat("dd-MM-yyyy", Locale.ROOT).format(new Date());
-                String url = "https://api.aladhan.com/v1/timings/" + dayParam
-                        + "?latitude=" + appContext.getString(R.string.latitude)
-                        + "&longitude=" + appContext.getString(R.string.longitude)
-                        + "&method=" + appContext.getString(R.string.method);
+                int[] minutes;
+                String[] times;
 
-                HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
-                c.setConnectTimeout(10000);
-                c.setReadTimeout(10000);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                try (InputStream in = c.getInputStream()) {
-                    byte[] buf = new byte[4096];
-                    for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
-                } finally {
-                    c.disconnect();
-                }
+                if ("waktusolat".equalsIgnoreCase(appContext.getString(R.string.source))) {
+                    String zone = appContext.getString(R.string.zone);
+                    JSONObject root = null;
+                    String cached = Waktusolat.readCache(appContext.getFilesDir());
+                    if (cached != null) {
+                        JSONObject cand = new JSONObject(cached);
+                        Calendar cal = Calendar.getInstance();
+                        if (Waktusolat.coversToday(cand, cal.get(Calendar.YEAR),
+                                cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))) {
+                            root = cand;
+                        }
+                    }
+                    if (root == null) {
+                        String jsonStr = Waktusolat.fetch(Waktusolat.url(zone));
+                        JSONObject cand = new JSONObject(jsonStr);
+                        Calendar cal = Calendar.getInstance();
+                        if (Waktusolat.coversToday(cand, cal.get(Calendar.YEAR),
+                                cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))) {
+                            Waktusolat.writeCache(appContext.getFilesDir(), jsonStr);
+                            root = cand;
+                        }
+                    }
+                    if (root == null) throw new Exception("no valid waktusolat cache");
+                    Calendar cal = Calendar.getInstance();
+                    Waktusolat.Day d = Waktusolat.parse(root, cal.get(Calendar.DAY_OF_MONTH), cal.getTimeZone());
+                    minutes = d.minutes;
+                    times = d.times;
+                } else {
+                    String dayParam = new SimpleDateFormat("dd-MM-yyyy", Locale.ROOT).format(new Date());
+                    String url = "https://api.aladhan.com/v1/timings/" + dayParam
+                            + "?latitude=" + appContext.getString(R.string.latitude)
+                            + "&longitude=" + appContext.getString(R.string.longitude)
+                            + "&method=" + appContext.getString(R.string.method);
 
-                JSONObject json = new JSONObject(out.toString("UTF-8"));
-                JSONObject data = json.getJSONObject("data");
-                JSONObject t = data.getJSONObject("timings");
+                    HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(10000);
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    try (InputStream in = c.getInputStream()) {
+                        byte[] buf = new byte[4096];
+                        for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
+                    } finally {
+                        c.disconnect();
+                    }
 
-                int[] minutes = new int[NAMES.length];
-                String[] times = new String[NAMES.length];
-                for (int i = 0; i < NAMES.length; i++) {
-                    String v = t.getString(NAMES[i]).trim();
-                    int sp = v.indexOf(' ');
-                    if (sp > 0) v = v.substring(0, sp);
-                    times[i] = v;
-                    minutes[i] = Integer.parseInt(v.substring(0, 2)) * 60 + Integer.parseInt(v.substring(3, 5));
+                    JSONObject json = new JSONObject(out.toString("UTF-8"));
+                    JSONObject data = json.getJSONObject("data");
+                    JSONObject t = data.getJSONObject("timings");
+
+                    minutes = new int[NAMES.length];
+                    times = new String[NAMES.length];
+                    for (int i = 0; i < NAMES.length; i++) {
+                        String v = t.getString(NAMES[i]).trim();
+                        int sp = v.indexOf(' ');
+                        if (sp > 0) v = v.substring(0, sp);
+                        times[i] = v;
+                        minutes[i] = Integer.parseInt(v.substring(0, 2)) * 60 + Integer.parseInt(v.substring(3, 5));
+                    }
                 }
 
                 saveTimingsAndSchedule(appContext, day, NAMES, times, minutes, appContext.getString(R.string.place));

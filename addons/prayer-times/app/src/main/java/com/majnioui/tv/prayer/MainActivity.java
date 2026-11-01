@@ -128,9 +128,70 @@ public class MainActivity extends Activity {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(new Date());
     }
 
+    private void loadSolat() {
+        final String day = today();
+        final String zone = getString(R.string.zone);
+        new Thread(() -> {
+            JSONObject root = null;
+            try {
+                String cached = Waktusolat.readCache(getFilesDir());
+                if (cached != null) {
+                    JSONObject cand = new JSONObject(cached);
+                    Calendar cal = Calendar.getInstance();
+                    if (Waktusolat.coversToday(cand, cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))) {
+                        root = cand;
+                    }
+                }
+                if (root == null) {
+                    String jsonStr = Waktusolat.fetch(Waktusolat.url(zone));
+                    JSONObject cand = new JSONObject(jsonStr);
+                    Calendar cal = Calendar.getInstance();
+                    if (Waktusolat.coversToday(cand, cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))) {
+                        Waktusolat.writeCache(getFilesDir(), jsonStr);
+                        root = cand;
+                    }
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "fetch solat: " + e);
+            }
+            final JSONObject result = root;
+            main.post(() -> {
+                loading = false;
+                if (result == null) {
+                    status.setText(getString(R.string.offline));
+                    return;
+                }
+                try {
+                    Calendar cal = Calendar.getInstance();
+                    Waktusolat.Day d = Waktusolat.parse(result, cal.get(Calendar.DAY_OF_MONTH), cal.getTimeZone());
+                    minutes = d.minutes;
+                    times = d.times;
+                    dates.setText(new SimpleDateFormat("EEEE d MMMM", Locale.ENGLISH).format(new Date()) + "  ·  "
+                            + Waktusolat.hijri(d.hijriIso));
+                    loadedFor = day;
+                    if (getResources().getBoolean(R.bool.reminders)) {
+                        PrayerScheduler.saveTimingsAndSchedule(MainActivity.this, day, NAMES, times, minutes, getString(R.string.place));
+                    } else {
+                        PrayerScheduler.cancel(MainActivity.this);
+                    }
+                    render();
+                } catch (Exception e) {
+                    Log.w(TAG, "parse solat: " + e);
+                    status.setText(getString(R.string.unexpected_error));
+                }
+            });
+        }).start();
+    }
+
     private void load() {
         if (loading) return;
         loading = true;
+        if ("waktusolat".equalsIgnoreCase(getString(R.string.source))) {
+            loadSolat();
+            return;
+        }
         final String day = today();
         String url = "https://api.aladhan.com/v1/timings/"
                 + new SimpleDateFormat("dd-MM-yyyy", Locale.ROOT).format(new Date())
@@ -245,7 +306,13 @@ public class MainActivity extends Activity {
         }
         boolean reminders = getResources().getBoolean(R.bool.reminders);
         String updated = getString(R.string.updated_at, new SimpleDateFormat("HH:mm", Locale.ROOT).format(new Date()));
-        String statusStr = "Aladhan" + (methodName.isEmpty() ? "" : " · " + methodName) + " · " + updated;
+        String sourceMode = getString(R.string.source);
+        String statusStr;
+        if ("waktusolat".equalsIgnoreCase(sourceMode)) {
+            statusStr = "JAKIM · " + getString(R.string.zone).toUpperCase(Locale.ROOT) + " · " + updated;
+        } else {
+            statusStr = "Aladhan" + (methodName.isEmpty() ? "" : " · " + methodName) + " · " + updated;
+        }
         if (reminders) {
             statusStr += " · " + getString(R.string.reminders_active);
         }

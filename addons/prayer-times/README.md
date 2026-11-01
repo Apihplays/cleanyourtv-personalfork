@@ -7,11 +7,10 @@ countdown to it, plus today's Gregorian and Hijri dates. Each prayer has its Ara
 
 ![The prayer times page](https://raw.githubusercontent.com/majnioui/cleanyourtv-contrib/pr-assets/addon-prayer-times/prayer-times.png)
 
-- **Data** comes from [Aladhan](https://aladhan.com/), which needs no account or key.
-- **The city and the calculation method** are set before you build, in `app/src/main/res/values/config.xml`:
-  `latitude`, `longitude`, `place` (the name shown) and `method`, Aladhan's
-  [method number](https://aladhan.com/calculation-methods) (2 ISNA, 3 Muslim World League, 4 Umm al-Qura,
-  5 Egyptian, 13 Turkey, 21 Morocco...). The default is Casablanca with the Morocco method.
+- **Data** comes from [Aladhan](https://aladhan.com/) (default) or JAKIM's official E-Solat tables via [api.waktusolat.app](https://api.waktusolat.app) (`source` set to `waktusolat` with a `zone` like `trg01`), which needs no account or key.
+- **The city, source, and zone** are set before you build, in `app/src/main/res/values/config.xml`:
+  `latitude`, `longitude`, `place` (the name shown), `source` (`aladhan` or `waktusolat`), `zone` (e.g. `trg01`), and `method` (Aladhan's
+  [method number](https://aladhan.com/calculation-methods)). The default is Kuala Terengganu with JAKIM zone `trg01`.
 - **Reminders switch**: In `app/src/main/res/values/config.xml`, `reminders` controls whether to schedule
   on-screen alert cards and notifications when a prayer time arrives. It is `false` (off) by default. When
   enabled (`true`), an unobtrusive, frameless compact card appears at the top-right corner of the screen
@@ -25,7 +24,7 @@ countdown to it, plus today's Gregorian and Hijri dates. Each prayer has its Ara
 
 | Permission | Why |
 |---|---|
-| `INTERNET` | Aladhan: today's times for the configured coordinates. |
+| `INTERNET` | Aladhan (coordinates) or JAKIM E-Solat (`api.waktusolat.app` by zone). |
 | `SCHEDULE_EXACT_ALARM` | Exact alarm scheduling for prayer time reminders. |
 | `RECEIVE_BOOT_COMPLETED` | Reschedules prayer alarms automatically when the TV boots. |
 | `WAKE_LOCK` | Briefly wakes the screen to deliver the on-screen alert card. |

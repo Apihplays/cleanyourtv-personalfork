@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The city shown. Coordinates in decimal degrees. -->
-    <string name="latitude" translatable="false">33.5731</string>
-    <string name="longitude" translatable="false">-7.5898</string>
-    <string name="place" translatable="false">Casablanca</string>
+    <!-- The city shown. Coordinates in decimal degrees (fallback when source=aladhan). -->
+    <string name="latitude" translatable="false">5.3302</string>
+    <string name="longitude" translatable="false">103.1408</string>
+    <string name="place" translatable="false">Kuala Terengganu</string>
     <!-- Aladhan's calculation method (https://aladhan.com/calculation-methods), e.g. 2 ISNA, 3 Muslim World
          League, 4 Umm al-Qura, 5 Egyptian, 13 Turkey, 20 Indonesia (Kemenag), 21 Morocco. -->
     <string name="method" translatable="false">21</string>
     <color name="accent">#2BB673</color>
+    <!-- Data source: "aladhan" (coordinates + method) or "waktusolat" (JAKIM E-Solat table by zone). -->
+    <string name="source" translatable="false">waktusolat</string>
+    <!-- The JAKIM zone, e.g. trg01 = Kuala Terengganu/Marang; used only when source is "waktusolat". -->
+    <string name="zone" translatable="false">trg01</string>
     <!-- Show an on-screen alert card when a prayer time arrives. Off by default. -->
     <bool name="reminders">false</bool>
 </resources>

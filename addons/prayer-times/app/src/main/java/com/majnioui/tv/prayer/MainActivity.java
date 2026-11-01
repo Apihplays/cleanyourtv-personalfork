@@ -19,6 +19,7 @@ import android.widget.TextView;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -130,7 +131,7 @@ public class MainActivity extends Activity {
 
     private void loadSolat() {
         final String day = today();
-        final String zone = getString(R.string.zone);
+        final String zone = Waktusolat.getZone(this);
         new Thread(() -> {
             JSONObject root = null;
             try {
@@ -309,7 +310,10 @@ public class MainActivity extends Activity {
         String sourceMode = getString(R.string.source);
         String statusStr;
         if ("waktusolat".equalsIgnoreCase(sourceMode)) {
-            statusStr = "JAKIM · " + getString(R.string.zone).toUpperCase(Locale.ROOT) + " · " + updated;
+            statusStr = "JAKIM · " + Waktusolat.getZone(this).toUpperCase(Locale.ROOT) + " · " + updated;
+            status.setOnClickListener(v -> showZoneSelector());
+            status.setFocusable(true);
+            status.setClickable(true);
         } else {
             statusStr = "Aladhan" + (methodName.isEmpty() ? "" : " · " + methodName) + " · " + updated;
         }
@@ -317,6 +321,33 @@ public class MainActivity extends Activity {
             statusStr += " · " + getString(R.string.reminders_active);
         }
         status.setText(statusStr);
+    }
+
+    private void showZoneSelector() {
+        if (!"waktusolat".equalsIgnoreCase(getString(R.string.source))) return;
+        final Waktusolat.Zone[] zones = Waktusolat.ZONES;
+        final String[] items = new String[zones.length];
+        String currentZone = Waktusolat.getZone(this);
+        int selectedIndex = 0;
+        for (int i = 0; i < zones.length; i++) {
+            items[i] = zones[i].code + " - " + zones[i].state + ": " + zones[i].name;
+            if (zones[i].code.equalsIgnoreCase(currentZone)) {
+                selectedIndex = i;
+            }
+        }
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Select JAKIM Zone")
+                .setSingleChoiceItems(items, selectedIndex, (dialog, which) -> {
+                    String newZone = zones[which].code;
+                    Waktusolat.saveZone(MainActivity.this, newZone);
+                    // Clear cache file to force refetch for new zone
+                    File cache = new File(getFilesDir(), Waktusolat.CACHE_FILE);
+                    if (cache.exists()) cache.delete();
+                    dialog.dismiss();
+                    load();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private static String fetch(String url) throws Exception {

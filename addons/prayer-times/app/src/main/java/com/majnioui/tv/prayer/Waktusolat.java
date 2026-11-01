@@ -29,6 +29,71 @@ public final class Waktusolat {
             "Jumada al-Awwal", "Jumada al-Thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal",
             "Dhu al-Qadah", "Dhu al-Hijjah"};
 
+    public static final class Zone {
+        public final String code;
+        public final String name;
+        public final String state;
+
+        public Zone(String code, String name, String state) {
+            this.code = code;
+            this.name = name;
+            this.state = state;
+        }
+    }
+
+    public static final Zone[] ZONES = {
+        new Zone("JHR01", "Johor Bahru, Kota Tinggi, Mersing", "Johor"),
+        new Zone("JHR02", "Kluang, Pontian", "Johor"),
+        new Zone("JHR03", "Batu Pahat, Muar, Segamat, Tangkak", "Johor"),
+        new Zone("KDH01", "Kota Setar, Kubang Pasu, Pokok Sena", "Kedah"),
+        new Zone("KDH02", "Kuala Muda, Yan, Pendang", "Kedah"),
+        new Zone("KDH03", "Padang Terap, Sik", "Kedah"),
+        new Zone("KDH04", "Baling", "Kedah"),
+        new Zone("KDH05", "Bandar Baharu, Kulim", "Kedah"),
+        new Zone("KDH06", "Langkawi", "Kedah"),
+        new Zone("KDH07", "Puncak Gunung Jerai", "Kedah"),
+        new Zone("KTN01", "Kota Bharu, Bachok, Cherang Ruku, Pasir Puteh, Tumpat, Machang, Tanah Merah, Pasir Mas", "Kelantan"),
+        new Zone("KTN03", "Gua Musang (Jajahan Kecil Lojing)", "Kelantan"),
+        new Zone("MLK01", "Seluruh Negeri Melaka", "Melaka"),
+        new Zone("NSN01", "Tampin, Rembau", "Negeri Sembilan"),
+        new Zone("NSN02", "Seremban, Port Dickson, Jelebu, Kuala Pilah, Jempol", "Negeri Sembilan"),
+        new Zone("PHG01", "Pulau Tioman", "Pahang"),
+        new Zone("PHG02", "Kuantan, Pekan, Rompin, Muadzam Shah", "Pahang"),
+        new Zone("PHG03", "Jerantut, Temerloh, Bera, Maran, Raub", "Pahang"),
+        new Zone("PHG04", "Bentong", "Pahang"),
+        new Zone("PHG05", "Lipis, Cameron Highlands", "Pahang"),
+        new Zone("PLS01", "Seluruh Negeri Perlis", "Perlis"),
+        new Zone("PNG01", "Seluruh Negeri Pulau Pinang", "Pulau Pinang"),
+        new Zone("PRK01", "Tapah, Slim River, Tanjong Malim", "Perak"),
+        new Zone("PRK02", "Kuala Kangsar, Sg. Siput, Ipoh, Batu Gajah, Kampar", "Perak"),
+        new Zone("PRK03", "Lenggong, Gerik, Pengkalan Hulu", "Perak"),
+        new Zone("PRK04", "Temengor, Belum", "Perak"),
+        new Zone("PRK05", "Kg Gajah, Teluk Intan, Bagan Datuk, Sg. Manik, Seri Iskandar, Beruas, Parit, Lumut, Sitiawan, Pulau Pangkor", "Perak"),
+        new Zone("PRK06", "Selama, Taiping, Bagan Serai, Parit Buntar", "Perak"),
+        new Zone("PRK07", "Bukit Larut", "Perak"),
+        new Zone("SBH01", "Bahagian Sandakan (Timur), Sukau, Kinabatangan, Beluran, Telupid", "Sabah"),
+        new Zone("SBH02", "Bahagian Tawau, Semporna, Kunak, Lahad Datu, Tungku, Kalabakan", "Sabah"),
+        new Zone("SBH03", "Bahagian Kudat, Kota Marudu, Pitas, Pulau Banggi", "Sabah"),
+        new Zone("SBH04", "Kota Kinabalu, Penampang, Tuaran, Papar, Kota Belud, Ranau, Kudat", "Sabah"),
+        new Zone("SBH05", "Papar, Beaufort, Sipitang, Kuala Penyu, Tenom, Keningau, Tambunan", "Sabah"),
+        new Zone("SWK01", "Limbang, Lawas, Sundar, Trusan", "Sarawak"),
+        new Zone("SWK02", "Miri, Niah, Bekenu, Sibuti, Marudi", "Sarawak"),
+        new Zone("SWK03", "Bintulu, Tatau, Sebauh", "Sarawak"),
+        new Zone("SWK04", "Sibu, Mukah, Dalat, Kanowit, Julau, Daro, Matu, Igan", "Sarawak"),
+        new Zone("SWK05", "Sarikei, Bintangor, Belawai, Julau", "Sarawak"),
+        new Zone("SWK06", "Sri Aman, Lubok Antu, Betong, Saratok, Kabong, Pusa", "Sarawak"),
+        new Zone("SWK07", "Kuching, Bau, Lundu, Samarahan, Asajaya, Serian, Simunjan, Tebedu", "Sarawak"),
+        new Zone("SGR01", "Gombak, Petaling, Sepang, Hulu Langat, Shah Alam", "Selangor"),
+        new Zone("SGR02", "Kuala Selangor, Sabak Bernam", "Selangor"),
+        new Zone("SGR03", "Klang, Kuala Langat", "Selangor"),
+        new Zone("SGR04", "Hulu Selangor", "Selangor"),
+        new Zone("TRG01", "Kuala Terengganu, Marang, Hulu Terengganu", "Terengganu"),
+        new Zone("TRG02", "Besut, Setiu", "Terengganu"),
+        new Zone("TRG03", "Dungun, Kemaman", "Terengganu"),
+        new Zone("WLP01", "Kuala Lumpur, Putrajaya", "W.P."),
+        new Zone("WLP02", "Labuan", "W.P.")
+    };
+
     private Waktusolat() {
     }
 
@@ -134,5 +199,15 @@ public final class Waktusolat {
         FileOutputStream out = new FileOutputStream(new File(dir, CACHE_FILE));
         out.write(json.getBytes("UTF-8"));
         out.close();
+    }
+
+    public static String getZone(android.content.Context ctx) {
+        android.content.SharedPreferences prefs = ctx.getSharedPreferences("prayer_prefs", android.content.Context.MODE_PRIVATE);
+        return prefs.getString("zone", ctx.getString(R.string.zone));
+    }
+
+    public static void saveZone(android.content.Context ctx, String zone) {
+        android.content.SharedPreferences prefs = ctx.getSharedPreferences("prayer_prefs", android.content.Context.MODE_PRIVATE);
+        prefs.edit().putString("zone", zone).apply();
     }
 }

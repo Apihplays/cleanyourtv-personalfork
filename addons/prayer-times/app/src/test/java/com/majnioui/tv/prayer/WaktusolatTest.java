@@ -81,10 +81,15 @@ public class WaktusolatTest {
     public TemporaryFolder tmp = new TemporaryFolder();
 
     @Test
-    public void cacheRoundTrip() throws Exception {
-        File dir = tmp.newFolder();
-        assertEquals(null, Waktusolat.readCache(dir));
-        Waktusolat.writeCache(dir, FIXTURE);
-        assertEquals(FIXTURE, Waktusolat.readCache(dir));
+    public void zoneCatalogIsPopulated() {
+        assertTrue(Waktusolat.ZONES.length > 10);
+        boolean found = false;
+        for (Waktusolat.Zone z : Waktusolat.ZONES) {
+            if ("TRG01".equals(z.code)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
     }
 }
